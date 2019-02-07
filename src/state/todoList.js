@@ -2,7 +2,7 @@ import omit from 'lodash/omit';
 import { createConsts, createActions } from '../utils/redux';
 import createUid from '../utils/uid';
 
-const initialState = {};
+const initialState = JSON.parse(window.localStorage.getItem('todoList')) || {};
 const supportedActions = [
   'CREATE',
   'UPDATE',
@@ -14,16 +14,25 @@ export const actions = createActions(consts);
 
 const createTodo = (state, payload) => {
   const id = createUid();
-
-  return Object.assign({}, state, {
+  const newState = Object.assign({}, state, {
     [id]: Object.assign({}, payload, { id }),
   });
+
+  window.localStorage.setItem('todoList', JSON.stringify(newState));
+
+  return newState;
 };
 
-const updateTodo = (state, payload) =>
-  Object.assign({}, state, {
+const updateTodo = (state, payload) => {
+  const newState = Object.assign({}, state, {
     [payload.id]: Object.assign({}, state[payload.id], payload),
   });
+
+  window.localStorage.setItem('todoList', JSON.stringify(newState));
+
+  return newState;
+};
+
 
 const deleteTodo = (state, id) => omit(state, [id]);
 
