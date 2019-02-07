@@ -1,8 +1,13 @@
 import omit from 'lodash/omit';
+import Store from 'electron-store';
 import { createConsts, createActions } from '../utils/redux';
 import createUid from '../utils/uid';
 
-const initialState = JSON.parse(window.localStorage.getItem('todoList')) || {};
+
+const DATA_KEY = 'todos';
+const data = new Store({ name: 'Todo List' });
+// const initialState = JSON.parse(window.localStorage.getItem('todoList')) || {};
+const initialState = data.get(DATA_KEY) || {};
 const supportedActions = [
   'CREATE',
   'UPDATE',
@@ -18,7 +23,8 @@ const createTodo = (state, payload) => {
     [id]: Object.assign({}, payload, { id }),
   });
 
-  window.localStorage.setItem('todoList', JSON.stringify(newState));
+  // window.localStorage.setItem('todoList', JSON.stringify(newState));
+  data.set(DATA_KEY, newState);
 
   return newState;
 };
@@ -28,13 +34,21 @@ const updateTodo = (state, payload) => {
     [payload.id]: Object.assign({}, state[payload.id], payload),
   });
 
-  window.localStorage.setItem('todoList', JSON.stringify(newState));
+  // window.localStorage.setItem('todoList', JSON.stringify(newState));
+  data.set(DATA_KEY, newState);
 
   return newState;
 };
 
 
-const deleteTodo = (state, id) => omit(state, [id]);
+const deleteTodo = (state, id) => {
+  const newState = omit(state, [id]);
+
+  // window.localStorage.setItem('todoList', JSON.stringify(newState));
+  data.set(DATA_KEY, newState);
+
+  return newState;
+};
 
 const counter = (state = initialState, action) => {
   const { payload, type } = action;
